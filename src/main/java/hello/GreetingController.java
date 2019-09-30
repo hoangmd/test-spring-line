@@ -101,7 +101,7 @@ public class GreetingController {
         }
 
 
-
+        /*
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         MultiValueMap<String, String> map= new LinkedMultiValueMap<>();
@@ -120,6 +120,8 @@ public class GreetingController {
 
         model.addAttribute("access_token", token.getBody().access_token);
         model.addAttribute("id_token", token.getBody().id_token);
+
+         */
         return "success";
     }
 
