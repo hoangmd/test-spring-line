@@ -101,27 +101,30 @@ public class GreetingController {
         }
 
 
-        /*
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        MultiValueMap<String, String> map= new LinkedMultiValueMap<>();
-        map.add("grant_type", "authorization_code");
-        map.add("code", code);
-        map.add("redirect_uri", encodedCallbackUrl);
-        map.add("client_id", channelId);
-        map.add("client_secret", channelSecret);
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+            map.add("grant_type", "authorization_code");
+            map.add("code", code);
+            map.add("redirect_uri", encodedCallbackUrl);
+            map.add("client_id", channelId);
+            map.add("client_secret", channelSecret);
 
-        RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
-        ResponseEntity<AccessToken> token = restTemplate.postForEntity(
-                lineAPIURL, request , AccessToken.class);
+            RestTemplate restTemplate = new RestTemplate();
+            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
+            ResponseEntity<AccessToken> token = restTemplate.postForEntity(
+                    lineAPIURL, request, AccessToken.class);
 
 
+            model.addAttribute("access_token", token.getBody().access_token);
+            model.addAttribute("id_token", token.getBody().id_token);
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
 
-        model.addAttribute("access_token", token.getBody().access_token);
-        model.addAttribute("id_token", token.getBody().id_token);
-
-         */
         return "success";
     }
 
