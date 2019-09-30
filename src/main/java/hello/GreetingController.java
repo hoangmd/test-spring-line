@@ -141,7 +141,7 @@ public class GreetingController {
         return "success";
     }
 
-    @GetMapping("/got_token")
+    @GetMapping("/gettingtoken")
     public String auth(
             @RequestParam(value = "access_token", required = false) String access_token,
             @RequestParam(value = "id_token", required = false) String id_token, Model model) {
