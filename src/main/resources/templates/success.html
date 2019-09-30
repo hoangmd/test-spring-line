@@ -16,7 +16,7 @@
     code: <input type="text" name="code"><br>
    <input type="hidden" name="code"><br>
    <input type="hidden" name="grant_type" value="authorization_code"><br>
-   <input type="text" name="redirect_uri" value="${callback}"><br>
+   <input type="text" name="redirect_uri" th:value="${callback}"><br>
    <input type="hidden" name="client_id" value="1627405774"><br>
    <input type="hidden" name="client_secret" value="55f97e140a30ff183ecbbf57339133e3"><br>
 
