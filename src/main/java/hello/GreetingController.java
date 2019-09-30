@@ -1,5 +1,6 @@
 package hello;
 
+import com.sun.deploy.net.HttpResponse;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -9,14 +10,21 @@ import org.springframework.ui.Model;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
+import org.yaml.snakeyaml.introspector.PropertyUtils;
+import sun.net.www.http.HttpClient;
 
+
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class GreetingController {
@@ -101,6 +109,9 @@ public class GreetingController {
         }
 
 
+
+
+        /*
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -119,16 +130,56 @@ public class GreetingController {
 
             model.addAttribute("access_token", token.getBody().access_token);
             model.addAttribute("id_token", token.getBody().id_token);
+
+
+
         }
         catch(Exception e)
         {
             e.printStackTrace();
         }
-
+    */
         return "success";
     }
 
+    @GetMapping("/got_token")
+    public String auth(
+            @RequestParam(value = "access_token", required = false) String access_token,
+            @RequestParam(value = "id_token", required = false) String id_token, Model model) {
+
+        model.addAttribute("access_token", access_token);
+        model.addAttribute("id_token", id_token);
+        return "gottoken";
+    }
+
+    /*
+    public void issueAccessToken(String code) {
 
 
+        // リクエストヘッダの生成
+        Map<String, Object> headers = new HashMap<String, Object>();
+        headers.put(LINEConstant.HeaderName.AUTHORIZATION.getValue(), LINEConstant.CONTENT_TYPE_URLENCODED);
+        Map<String, String> form = new HashMap<String, String>();
+        form.put(LINEConstant.ParameterName.GRANT_TYPE.getValue(), LINEConstant.GrantType.AUTHORIZATION_CODE.getValue());
+        form.put(LINEConstant.ParameterName.CLIENT_ID.getValue(), channelId);
+        form.put(LINEConstant.ParameterName.CLIENT_SECRET.getValue(), channelSecret);
+        form.put(LINEConstant.ParameterName.CODE.getValue(), code);
+        form.put(LINEConstant.ParameterName.REDIRECT_URI.getValue(), callbackUrl);
+
+        String url = lineAPIURL;
+        HTTPRequestService httpService = new HTTPRequestService();
+        String json = httpService.postRequest(url, headers, form);
+
+        logger.info("レスポンス json=[" + json + "]");
+
+        SocialAccessTokenVo accessTokenVo = JsonUtils.convertJsonToObject(json, SocialAccessTokenVo.class);
+        dto.setScope(accessTokenVo.getScope());
+        dto.setAccessToken(accessTokenVo.getAccessToken());
+        dto.setExpiresIn(accessTokenVo.getExpiresIn());
+        dto.setRefreshToken(accessTokenVo.getRefreshToken());
+        dto.setIdToken(accessTokenVo.getIdToken());
+    }
+
+    */
 
 }
