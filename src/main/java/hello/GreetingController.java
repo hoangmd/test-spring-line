@@ -101,7 +101,7 @@ public class GreetingController {
         }
 
 
-        /*
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         MultiValueMap<String, String> map= new LinkedMultiValueMap<>();
@@ -113,16 +113,13 @@ public class GreetingController {
 
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                lineAPIURL, request , String.class);
-        response.getHeaders()
-        */
-        RestTemplate restTemplate = new RestTemplate();
-        AccessToken token = restTemplate
-                .getForObject(lineAPIURL, AccessToken.class);
+        ResponseEntity<AccessToken> token = restTemplate.postForEntity(
+                lineAPIURL, request , AccessToken.class);
 
-        model.addAttribute("access_token", token.access_token);
-        model.addAttribute("id_token", token.id_token);
+
+
+        model.addAttribute("access_token", token.getBody().access_token);
+        model.addAttribute("id_token", token.getBody().id_token);
         return "success";
     }
 
