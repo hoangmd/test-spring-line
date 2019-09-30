@@ -106,8 +106,15 @@ public class GreetingController {
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
+        final String callback;
 
+        try {
+            callback = URLEncoder.encode("https://duc-test-spring.herokuapp.com/gettingtoken", "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
 
+        model.addAttribute("callback", callback);
 
 
         /*
