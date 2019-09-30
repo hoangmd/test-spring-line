@@ -1,11 +1,19 @@
 package hello;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
@@ -15,6 +23,8 @@ public class GreetingController {
 
     String channelId = "1627405774";
     String callbackUrl = "https://duc-test-spring.herokuapp.com/auth";
+    String channelSecret = "55f97e140a30ff183ecbbf57339133e3";
+    String lineAPIURL = "https://api.line.me/oauth2/v2.1/token";
 
     @GetMapping("/greeting")
     public String greeting(@RequestParam(name="name", required=false, defaultValue="World") String name, Model model) {
@@ -24,8 +34,9 @@ public class GreetingController {
 
     @GetMapping("/lineauth")
     public String goToAuthPage(){
-        final String state = CommonUtils.getToken();
-        final String nonce = CommonUtils.getToken();
+       // final String state = CommonUtils.getToken();
+        final String state = "staterandom";
+        final String nonce = "nouncerandom";
         final String url = getLineWebLoginUrl(state, nonce, Arrays.asList("openid", "profile"));
         return "redirect:" + url;
     }
@@ -80,6 +91,38 @@ public class GreetingController {
         model.addAttribute("state", state);
         model.addAttribute("scope", scope);
         model.addAttribute("error", error);
+
+
+        final String encodedCallbackUrl;
+        try {
+            encodedCallbackUrl = URLEncoder.encode(callbackUrl, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        /*
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        MultiValueMap<String, String> map= new LinkedMultiValueMap<>();
+        map.add("grant_type", "authorization_code");
+        map.add("code", code);
+        map.add("redirect_uri", encodedCallbackUrl);
+        map.add("client_id", channelId);
+        map.add("client_secret", channelSecret);
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
+        ResponseEntity<String> response = restTemplate.postForEntity(
+                lineAPIURL, request , String.class);
+        response.getHeaders()
+        */
+        RestTemplate restTemplate = new RestTemplate();
+        AccessToken token = restTemplate
+                .getForObject(lineAPIURL, AccessToken.class);
+
+        model.addAttribute("access_token", token.access_token);
+        model.addAttribute("id_token", token.id_token);
         return "success";
     }
 
