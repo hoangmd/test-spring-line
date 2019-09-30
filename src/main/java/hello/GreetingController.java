@@ -57,7 +57,7 @@ public class GreetingController {
             @RequestParam(value = "scope", required = false) String scope,
             @RequestParam(value = "error", required = false) String error,
             @RequestParam(value = "errorCode", required = false) String errorCode,
-            @RequestParam(value = "errorMessage", required = false) String errorMessage) {
+            @RequestParam(value = "errorMessage", required = false) String errorMessage, Model model) {
 
 
         if (error != null || errorCode != null || errorMessage != null){
@@ -76,6 +76,10 @@ public class GreetingController {
         }
         httpSession.setAttribute(ACCESS_TOKEN, token);
         */
+        model.addAttribute("code", code);
+        model.addAttribute("state", state);
+        model.addAttribute("scope", scope);
+        model.addAttribute("error", error);
         return "success";
     }
 
