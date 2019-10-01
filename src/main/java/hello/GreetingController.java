@@ -115,7 +115,7 @@ public class GreetingController {
             MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
             map.add("grant_type", "authorization_code");
             map.add("code", code);
-            map.add("redirect_uri", encodedCallbackUrl);
+            map.add("redirect_uri", callbackUrl);
             map.add("client_id", channelId);
             map.add("client_secret", channelSecret);
 
