@@ -5,10 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.LinkedMultiValueMap;
@@ -86,18 +83,6 @@ public class GreetingController {
             return "redirect:/loginCancel";
         }
 
-        /*
-        AccessToken token = lineAPIService.accessToken(code);
-        if (logger.isDebugEnabled()) {
-            logger.debug("scope : " + token.scope);
-            logger.debug("access_token : " + token.access_token);
-            logger.debug("token_type : " + token.token_type);
-            logger.debug("expires_in : " + token.expires_in);
-            logger.debug("refresh_token : " + token.refresh_token);
-            logger.debug("id_token : " + token.id_token);
-        }
-        httpSession.setAttribute(ACCESS_TOKEN, token);
-        */
         model.addAttribute("code", code);
         model.addAttribute("state", state);
         model.addAttribute("scope", scope);
@@ -125,7 +110,6 @@ public class GreetingController {
 
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
-        System.out.println(request.toString());
         ResponseEntity<AccessToken> token = restTemplate.postForEntity(
                 lineAPIURL, request, AccessToken.class);
 
@@ -141,8 +125,20 @@ public class GreetingController {
         String name = idToken.name;
         model.addAttribute("lineName", name);
 
+
+        //get user profile
+        restTemplate = new RestTemplate();
+        headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + accessToken.access_token);
+        HttpEntity entity = new HttpEntity(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                "https://api.line.me/v2/profile", HttpMethod.GET, entity, String.class);
+        String responseBody = response.getBody();
+        model.addAttribute("userProfile", responseBody);
         return "success";
     }
+
 
     @GetMapping("/gettingtoken")
     public String auth(
@@ -178,7 +174,7 @@ public class GreetingController {
             JWT.require(
                     Algorithm.HMAC256(channelSecret))
                     .withIssuer("https://access.line.me")
-                    .withAudience(channelId +"sdf")
+                    .withAudience(channelId)
                     .withClaim("nonce", nonce)
                     .acceptLeeway(60) // add 60 seconds leeway to handle clock skew between client and server sides.
                     .build()
