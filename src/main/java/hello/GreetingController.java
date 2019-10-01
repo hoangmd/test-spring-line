@@ -121,6 +121,7 @@ public class GreetingController {
 
             RestTemplate restTemplate = new RestTemplate();
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
+            System.out.println(request.toString());
             ResponseEntity<AccessToken> token = restTemplate.postForEntity(
                     lineAPIURL, request, AccessToken.class);
 
