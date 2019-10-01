@@ -15,14 +15,21 @@
  */
 package hello;
 
-public final class AccessToken {
+import java.io.Serializable;
 
-    public final String scope;
-    public final String access_token;
-    public final String token_type;
-    public final Integer expires_in;
-    public final String refresh_token;
-    public final String id_token;
+public final class AccessToken implements Serializable {
+
+    public String scope;
+    public String access_token;
+    public String token_type;
+    public Integer expires_in;
+    public String refresh_token;
+    public String id_token;
+
+    public AccessToken()
+    {
+
+    }
 
     public AccessToken(String scope, String access_token, String token_type, Integer expires_in, String refresh_token, String id_token) {
         this.scope = scope;
