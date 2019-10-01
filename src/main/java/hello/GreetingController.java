@@ -15,7 +15,6 @@ import org.springframework.web.client.RestTemplate;
 import org.yaml.snakeyaml.introspector.PropertyUtils;
 
 
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -34,14 +33,14 @@ public class GreetingController {
     String lineAPIURL = "https://api.line.me/oauth2/v2.1/token";
 
     @GetMapping("/greeting")
-    public String greeting(@RequestParam(name="name", required=false, defaultValue="World") String name, Model model) {
+    public String greeting(@RequestParam(name = "name", required = false, defaultValue = "World") String name, Model model) {
         model.addAttribute("name", name);
         return "greeting";
     }
 
     @GetMapping("/lineauth")
-    public String goToAuthPage(){
-       // final String state = CommonUtils.getToken();
+    public String goToAuthPage() {
+        // final String state = CommonUtils.getToken();
         final String state = "staterandom";
         final String nonce = "nouncerandom";
         final String url = getLineWebLoginUrl(state, nonce, Arrays.asList("openid", "profile"));
@@ -78,7 +77,7 @@ public class GreetingController {
             @RequestParam(value = "errorMessage", required = false) String errorMessage, Model model) {
 
 
-        if (error != null || errorCode != null || errorMessage != null){
+        if (error != null || errorCode != null || errorMessage != null) {
             return "redirect:/loginCancel";
         }
 
@@ -106,18 +105,10 @@ public class GreetingController {
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
-        final String callback;
 
-        try {
-            callback = URLEncoder.encode("https://duc-test-spring.herokuapp.com/gettingtoken", "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-
-        model.addAttribute("callback", callback);
+        // model.addAttribute("callback", callback);
 
 
-        /*
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -138,13 +129,10 @@ public class GreetingController {
             model.addAttribute("id_token", token.getBody().id_token);
 
 
-
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-    */
+
         return "success";
     }
 
