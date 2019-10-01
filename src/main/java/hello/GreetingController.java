@@ -5,7 +5,6 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
@@ -13,20 +12,13 @@ import org.springframework.ui.Model;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
-import org.yaml.snakeyaml.introspector.PropertyUtils;
 
-
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URLEncoder;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Controller
 public class GreetingController {
@@ -36,18 +28,12 @@ public class GreetingController {
     String channelSecret = "55f97e140a30ff183ecbbf57339133e3";
     String lineAPIURL = "https://api.line.me/oauth2/v2.1/token";
 
-    @GetMapping("/greeting")
-    public String greeting(@RequestParam(name = "name", required = false, defaultValue = "World") String name, Model model) {
-        model.addAttribute("name", name);
-        return "greeting";
-    }
 
     @GetMapping("/lineauth")
     public String goToAuthPage() {
-        // final String state = CommonUtils.getToken();
         final String state = "staterandom";
         final String nonce = "nouncerandom";
-        final String url = getLineWebLoginUrl(state, nonce, Arrays.asList("openid", "profile"));
+        final String url = getLineWebLoginUrl(state, nonce, Arrays.asList("openid", "profile", "email"));
         return "redirect:" + url;
     }
 
@@ -124,8 +110,8 @@ public class GreetingController {
         model.addAttribute("verifiedSuccessful", verifiedSuccessful.toString());
 
         IdToken idToken = idToken(accessToken.id_token);
-        String name = idToken.name;
-        model.addAttribute("lineName", name);
+        String email = idToken.email;
+        model.addAttribute("email", email);
 
 
         //get user profile
@@ -154,19 +140,6 @@ public class GreetingController {
     }
 
 
-
-
-    @GetMapping("/gettingtoken")
-    public String auth(
-            @RequestParam(value = "access_token", required = false) String access_token,
-            @RequestParam(value = "id_token", required = false) String id_token, Model model) {
-
-        model.addAttribute("access_token", access_token);
-        model.addAttribute("id_token", id_token);
-        return "gottoken";
-    }
-
-
     public IdToken idToken(String id_token) {
         try {
             DecodedJWT jwt = JWT.decode(id_token);
@@ -178,6 +151,7 @@ public class GreetingController {
                     jwt.getClaim("iat").asLong(),
                     jwt.getClaim("nonce").asString(),
                     jwt.getClaim("name").asString(),
+                    jwt.getClaim("email").asString(),
                     jwt.getClaim("picture").asString());
         } catch (JWTDecodeException e) {
             throw new RuntimeException(e);
@@ -201,35 +175,5 @@ public class GreetingController {
             return false;
         }
     }
-
-    /*
-    public void issueAccessToken(String code) {
-
-
-        // リクエストヘッダの生成
-        Map<String, Object> headers = new HashMap<String, Object>();
-        headers.put(LINEConstant.HeaderName.AUTHORIZATION.getValue(), LINEConstant.CONTENT_TYPE_URLENCODED);
-        Map<String, String> form = new HashMap<String, String>();
-        form.put(LINEConstant.ParameterName.GRANT_TYPE.getValue(), LINEConstant.GrantType.AUTHORIZATION_CODE.getValue());
-        form.put(LINEConstant.ParameterName.CLIENT_ID.getValue(), channelId);
-        form.put(LINEConstant.ParameterName.CLIENT_SECRET.getValue(), channelSecret);
-        form.put(LINEConstant.ParameterName.CODE.getValue(), code);
-        form.put(LINEConstant.ParameterName.REDIRECT_URI.getValue(), callbackUrl);
-
-        String url = lineAPIURL;
-        HTTPRequestService httpService = new HTTPRequestService();
-        String json = httpService.postRequest(url, headers, form);
-
-        logger.info("レスポンス json=[" + json + "]");
-
-        SocialAccessTokenVo accessTokenVo = JsonUtils.convertJsonToObject(json, SocialAccessTokenVo.class);
-        dto.setScope(accessTokenVo.getScope());
-        dto.setAccessToken(accessTokenVo.getAccessToken());
-        dto.setExpiresIn(accessTokenVo.getExpiresIn());
-        dto.setRefreshToken(accessTokenVo.getRefreshToken());
-        dto.setIdToken(accessTokenVo.getIdToken());
-    }
-
-    */
 
 }
