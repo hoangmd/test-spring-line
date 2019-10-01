@@ -1,5 +1,10 @@
 package hello;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -109,30 +114,32 @@ public class GreetingController {
         // model.addAttribute("callback", callback);
 
 
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-            MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-            map.add("grant_type", "authorization_code");
-            map.add("code", code);
-            map.add("redirect_uri", callbackUrl);
-            map.add("client_id", channelId);
-            map.add("client_secret", channelSecret);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("grant_type", "authorization_code");
+        map.add("code", code);
+        map.add("redirect_uri", callbackUrl);
+        map.add("client_id", channelId);
+        map.add("client_secret", channelSecret);
 
-            RestTemplate restTemplate = new RestTemplate();
-            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
-            System.out.println(request.toString());
-            ResponseEntity<AccessToken> token = restTemplate.postForEntity(
-                    lineAPIURL, request, AccessToken.class);
-
-
-            model.addAttribute("access_token", token.getBody().access_token);
-            model.addAttribute("id_token", token.getBody().id_token);
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
+        System.out.println(request.toString());
+        ResponseEntity<AccessToken> token = restTemplate.postForEntity(
+                lineAPIURL, request, AccessToken.class);
 
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        model.addAttribute("access_token", token.getBody().access_token);
+        model.addAttribute("id_token", token.getBody().id_token);
+
+        AccessToken accessToken = token.getBody();
+        Boolean verifiedSuccessful = verifyIdToken(accessToken.id_token, "nouncerandom");
+        model.addAttribute("verifiedSuccessful", verifiedSuccessful.toString());
+
+        IdToken idToken = idToken(accessToken.id_token);
+        String name = idToken.name;
+        model.addAttribute("lineName", name);
 
         return "success";
     }
@@ -145,6 +152,42 @@ public class GreetingController {
         model.addAttribute("access_token", access_token);
         model.addAttribute("id_token", id_token);
         return "gottoken";
+    }
+
+
+    public IdToken idToken(String id_token) {
+        try {
+            DecodedJWT jwt = JWT.decode(id_token);
+            return new IdToken(
+                    jwt.getClaim("iss").asString(),
+                    jwt.getClaim("sub").asString(),
+                    jwt.getClaim("aud").asString(),
+                    jwt.getClaim("ext").asLong(),
+                    jwt.getClaim("iat").asLong(),
+                    jwt.getClaim("nonce").asString(),
+                    jwt.getClaim("name").asString(),
+                    jwt.getClaim("picture").asString());
+        } catch (JWTDecodeException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public boolean verifyIdToken(String id_token, String nonce) {
+        try {
+            JWT.require(
+                    Algorithm.HMAC256(channelSecret))
+                    .withIssuer("https://access.line.me")
+                    .withAudience(channelId)
+                    .withClaim("nonce", nonce)
+                    .acceptLeeway(60) // add 60 seconds leeway to handle clock skew between client and server sides.
+                    .build()
+                    .verify(id_token);
+            return true;
+        } catch (JWTVerificationException e) {
+            //Invalid signature/claims
+            return false;
+        }
     }
 
     /*

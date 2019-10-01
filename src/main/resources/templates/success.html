@@ -5,25 +5,14 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 <body>
-<p th:text="'Hello code, ' + ${code} + '!'" />
-<p th:text="'Hello state, ' + ${state} + '!'" />
-<p th:text="'Hello scope, ' + ${scope} + '!'" />
-<p th:text="'Hello error, ' + ${error} + '!'" />
-<p th:text="'Hello access_token, ' + ${access_token} + '!'" />
-<p th:text="'Hello id_token, ' + ${id_token} + '!'" />
+<p th:text="'Code = ' + ${code} + '!'" />
+<p th:text="'State = ' + ${state} + '!'" />
+<p th:text="'Error = ' + ${error} + '!'" />
+<p th:text="'Access_token = ' + ${access_token} + '!'" />
+<p th:text="'id_token = ' + ${id_token} + '!'" />
+<p th:text="'id_token verified = ' + ${verifiedSuccessful} + '!'" />
+<p th:text="'Line name = ' + ${lineName} + '!'" />
 
-<form action="https://api.line.me/oauth2/v2.1/token" method="post">
-    code: <input type="text" name="code"><br>
-   <input type="hidden" name="code"><br>
-   <input type="hidden" name="grant_type" value="authorization_code"><br>
-   <input type="text" name="redirect_uri" th:value="${callback}"><br>
-   <input type="hidden" name="client_id" value="1627405774"><br>
-   <input type="hidden" name="client_secret" value="55f97e140a30ff183ecbbf57339133e3"><br>
-
-
-
-    <input type="submit" value="Submit">
-</form>
 
 </body>
 </html>
