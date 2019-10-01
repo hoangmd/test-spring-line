@@ -5,6 +5,8 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -136,8 +138,22 @@ public class GreetingController {
                 "https://api.line.me/v2/profile", HttpMethod.GET, entity, String.class);
         String responseBody = response.getBody();
         model.addAttribute("userProfile", responseBody);
+
+        JSONObject obj = new JSONObject(responseBody);
+        String userId = obj.getString("userId");
+        String displayName = obj.getString("displayName");
+        String pictureUrl = obj.getString("pictureUrl");
+
+
+        model.addAttribute("userId", userId);
+        model.addAttribute("displayName", displayName);
+        model.addAttribute("pictureUrl", pictureUrl);
+
+
         return "success";
     }
+
+
 
 
     @GetMapping("/gettingtoken")

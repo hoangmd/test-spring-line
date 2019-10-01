@@ -31,5 +31,6 @@ dependencies {
     compile("org.springframework.boot:spring-boot-devtools")
     testCompile("junit:junit")
     implementation 'com.auth0:java-jwt:3.8.3'
+    compile 'org.json:json:20171018'
 
 }
